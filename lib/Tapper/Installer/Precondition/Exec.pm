@@ -7,7 +7,7 @@ use warnings;
 use Moose;
 use IO::Handle; # needed to set pipe nonblocking
 use IO::Select;
-use Linux::Personality qw/personality PER_LINUX32 /;
+#use Linux::Personality qw/personality PER_LINUX32 /;
 
 extends 'Tapper::Installer::Precondition';
 
@@ -93,7 +93,10 @@ sub install
                 ($error, $output)    = $self->log_and_exec("mount -t sysfs sys ".$self->cfg->{paths}{base_dir}."/sys");
                 ($error, $output)    = $self->log_and_exec("mount -t proc proc ".$self->cfg->{paths}{base_dir}."/proc");
                 my $arch = $exec->{arch} // "";
-                personality(PER_LINUX32) if $arch eq 'linux32';
+#                personality(PER_LINUX32) if $arch eq 'linux32';
+                if ($arch eq 'linux32') {
+                    Linux::Personality::personality(Linux::Personality::PER_LINUX32());
+                }
                 chroot $self->cfg->{paths}{base_dir};
                 chdir ("/");
                 %ENV = (%ENV, %{$exec->{environment} || {} });
